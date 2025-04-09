@@ -2,6 +2,7 @@ package com.jm_admin_management.serviceImpl;
 
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
+import com.jm_admin_management.exceptionHandling.NoPendingFreelancerException;
 import com.jm_admin_management.repository.FreelancerRepository;
 import com.jm_admin_management.service.FreelancerProfileService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +21,7 @@ public class FreelancerProfileServiceImpl implements FreelancerProfileService {
 
         List<Freelancer> freelancers = freelancerRepository.getFreelancerByProfileStatus(ProfileStatus.PENDING);
         if (freelancers.isEmpty()) {
-            throw new RuntimeException("No freelancers found with PENDING status");
+            throw new NoPendingFreelancerException();
         }
         return freelancers;
     }

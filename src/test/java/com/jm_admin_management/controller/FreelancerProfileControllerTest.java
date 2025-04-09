@@ -1,0 +1,75 @@
+package com.jm_admin_management.controller;
+
+import com.common.entity.Freelancer;
+import com.common.enums.ProfileStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jm_admin_management.service.FreelancerProfileService;
+import com.jm_admin_management.test_utils.factory.FreelancerTestDataFactory;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import java.util.List;
+import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(FreelancerProfileController.class)
+class FreelancerProfileControllerTest {
+
+    @MockitoBean
+    private FreelancerProfileService freelancerProfileService;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Test
+    @DisplayName("GET /api/freelancers/getPendingFreelancers should return list of pending freelancers")
+    void getPendingFreelancers_ShouldReturnFreelancersList() throws Exception {
+        // Arrange
+        List<Freelancer> pendingFreelancers = FreelancerTestDataFactory.createFreelancerList(3, ProfileStatus.PENDING);
+        when(freelancerProfileService.getPendingFreelancers()).thenReturn(pendingFreelancers);
+
+        // Act & Assert
+        mockMvc.perform(get("/api/freelancers/getPendingFreelancers")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(3)))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].title").value("Java Developer"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].profileStatus").value("PENDING"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[0].hourlyRate").value(75.0))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[1].title").value("Full Stack Developer"))
+                .andExpect(MockMvcResultMatchers.jsonPath("$[2].title").value("UX/UI Designer"))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(freelancerProfileService, times(1)).getPendingFreelancers();
+    }
+
+    @Test
+    @DisplayName("GET /api/freelancers/getPendingFreelancers should return empty list when no pending freelancers")
+    void getPendingFreelancers_WithEmptyResult_ShouldReturnEmptyList() throws Exception {
+        // Arrange
+        when(freelancerProfileService.getPendingFreelancers()).thenReturn(List.of());
+
+        // Act & Assert
+        mockMvc.perform(get("/api/freelancers/getPendingFreelancers")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(0)))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(freelancerProfileService, times(1)).getPendingFreelancers();
+    }
+
+}
