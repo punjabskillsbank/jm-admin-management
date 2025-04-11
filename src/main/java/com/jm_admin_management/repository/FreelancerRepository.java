@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface FreelancerRepository extends JpaRepository<Freelancer, Long> {
-    List<Freelancer> getFreelancerByProfileStatus(ProfileStatus status);
+    List<Freelancer> getFreelancersByProfileStatus(ProfileStatus status);
 }

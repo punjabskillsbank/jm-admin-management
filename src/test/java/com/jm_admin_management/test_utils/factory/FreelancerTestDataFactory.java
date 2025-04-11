@@ -9,9 +9,7 @@ import com.common.entity.Education;
 import com.common.entity.Freelancer;
 import com.common.entity.Job;
 import com.common.enums.ProfileStatus;
-
 import java.sql.Timestamp;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +38,7 @@ public class FreelancerTestDataFactory {
             "Data scientist with background in machine learning and statistical analysis."
     };
 
-    private static final Double[] HOURLY_RATES = {75.0, 85.0, 65.0, 90.0, 95.0};
+    private static final Double[] HOURLY_RATES = { 75.0, 85.0, 65.0, 90.0, 95.0};
 
     private static final String[] ADDRESSES = {
             "123 Tech Street",

@@ -2,12 +2,12 @@ package com.jm_admin_management.serviceImpl;
 
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
-import com.jm_admin_management.exceptionHandling.NoPendingFreelancerException;
 import com.jm_admin_management.repository.FreelancerRepository;
 import com.jm_admin_management.service.FreelancerProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -19,9 +19,9 @@ public class FreelancerProfileServiceImpl implements FreelancerProfileService {
     @Override
     public List<Freelancer> getPendingFreelancers() {
 
-        List<Freelancer> freelancers = freelancerRepository.getFreelancerByProfileStatus(ProfileStatus.PENDING);
+        List<Freelancer> freelancers = freelancerRepository.getFreelancersByProfileStatus(ProfileStatus.PENDING);
         if (freelancers.isEmpty()) {
-            throw new NoPendingFreelancerException();
+            return Collections.emptyList();
         }
         return freelancers;
     }

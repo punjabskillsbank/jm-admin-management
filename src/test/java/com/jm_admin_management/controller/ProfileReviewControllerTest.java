@@ -20,8 +20,8 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FreelancerProfileController.class)
-class FreelancerProfileControllerTest {
+@WebMvcTest(ProfileReviewController.class)
+class ProfileReviewControllerTest {
 
     @MockitoBean
     private FreelancerProfileService freelancerProfileService;
@@ -33,14 +33,14 @@ class FreelancerProfileControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("GET /api/freelancers/getPendingFreelancers should return list of pending freelancers")
+    @DisplayName("GET /api/admin_management/pending_freelancers should return list of pending freelancers")
     void getPendingFreelancers_ShouldReturnFreelancersList() throws Exception {
         // Arrange
         List<Freelancer> pendingFreelancers = FreelancerTestDataFactory.createFreelancerList(3, ProfileStatus.PENDING);
         when(freelancerProfileService.getPendingFreelancers()).thenReturn(pendingFreelancers);
 
         // Act & Assert
-        mockMvc.perform(get("/api/freelancers/getPendingFreelancers")
+        mockMvc.perform(get("/api/admin_management/pending_freelancers")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))
@@ -56,13 +56,13 @@ class FreelancerProfileControllerTest {
     }
 
     @Test
-    @DisplayName("GET /api/freelancers/getPendingFreelancers should return empty list when no pending freelancers")
+    @DisplayName("GET /api/admin_management/pending_freelancers should return empty list when no pending freelancers")
     void getPendingFreelancers_WithEmptyResult_ShouldReturnEmptyList() throws Exception {
         // Arrange
         when(freelancerProfileService.getPendingFreelancers()).thenReturn(List.of());
 
         // Act & Assert
-        mockMvc.perform(get("/api/freelancers/getPendingFreelancers")
+        mockMvc.perform(get("/api/admin_management/pending_freelancers")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_JSON))

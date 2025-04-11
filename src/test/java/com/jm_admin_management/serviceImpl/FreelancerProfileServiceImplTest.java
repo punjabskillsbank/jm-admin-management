@@ -2,7 +2,6 @@ package com.jm_admin_management.serviceImpl;
 
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
-import com.jm_admin_management.exceptionHandling.NoPendingFreelancerException;
 import com.jm_admin_management.repository.FreelancerRepository;
 import com.jm_admin_management.test_utils.factory.FreelancerTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,7 +38,7 @@ public class FreelancerProfileServiceImplTest {
     @DisplayName("Should return list of pending freelancers when there are pending freelancers")
     void getPendingFreelancers_WithPendingFreelancers_ReturnsFreelancerList() {
         // Arrange
-        when(freelancerRepository.getFreelancerByProfileStatus(ProfileStatus.PENDING))
+        when(freelancerRepository.getFreelancersByProfileStatus(ProfileStatus.PENDING))
                 .thenReturn(pendingFreelancers);
 
         // Act
@@ -51,21 +51,21 @@ public class FreelancerProfileServiceImplTest {
         assertEquals(ProfileStatus.PENDING, result.get(1).getProfileStatus());
         assertEquals("Java Developer", result.get(0).getTitle());
         assertEquals("Full Stack Developer", result.get(1).getTitle());
-        verify(freelancerRepository, times(1)).getFreelancerByProfileStatus(ProfileStatus.PENDING);
+        verify(freelancerRepository, times(1)).getFreelancersByProfileStatus(ProfileStatus.PENDING);
     }
 
     @Test
-    @DisplayName("Should throw NoPendingFreelancerException when there are no pending freelancers")
-    void getPendingFreelancers_WithNoPendingFreelancers_ThrowsException() {
+    @DisplayName("Should return empty list when there are no pending freelancers")
+    void getPendingFreelancers_WithNoPendingFreelancers_ReturnsEmptyList() {
         // Arrange
-        when(freelancerRepository.getFreelancerByProfileStatus(ProfileStatus.PENDING))
+        when(freelancerRepository.getFreelancersByProfileStatus(ProfileStatus.PENDING))
                 .thenReturn(new ArrayList<>());
 
         // Act & Assert
-        NoPendingFreelancerException exception = assertThrows(NoPendingFreelancerException.class,
-                () -> freelancerProfileService.getPendingFreelancers());
+        List<Freelancer> result = freelancerProfileService.getPendingFreelancers();
+        assertEquals(Collections.emptyList(), result);
 
-        verify(freelancerRepository, times(1)).getFreelancerByProfileStatus(ProfileStatus.PENDING);
+        verify(freelancerRepository, times(1)).getFreelancersByProfileStatus(ProfileStatus.PENDING);
     }
 
 
@@ -76,7 +76,7 @@ public class FreelancerProfileServiceImplTest {
         Freelancer freelancerWithRelations = FreelancerTestDataFactory.createFreelancerWithRelations(
                 0, ProfileStatus.PENDING, 2, 3, 1);
 
-        when(freelancerRepository.getFreelancerByProfileStatus(ProfileStatus.PENDING))
+        when(freelancerRepository.getFreelancersByProfileStatus(ProfileStatus.PENDING))
                 .thenReturn(List.of(freelancerWithRelations));
 
         // Act
@@ -89,6 +89,27 @@ public class FreelancerProfileServiceImplTest {
         assertEquals(2, returnedFreelancer.getEducations().size());
         assertEquals(3, returnedFreelancer.getJobs().size());
         assertEquals(1, returnedFreelancer.getCertificates().size());
-        verify(freelancerRepository, times(1)).getFreelancerByProfileStatus(ProfileStatus.PENDING);
+        verify(freelancerRepository, times(1)).getFreelancersByProfileStatus(ProfileStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("Should return only pending freelancers if freelancers with other statuses exist")
+    void getPendingFreelancers_ShouldReturnOnlyPendingFreelancers() {
+        // Arrange
+        List<Freelancer> freelancers = new ArrayList<>();
+        freelancers.add(FreelancerTestDataFactory.createFreelancer(1, ProfileStatus.PENDING));
+        freelancers.add(FreelancerTestDataFactory.createFreelancer(2, ProfileStatus.APPROVED));
+        freelancers.add(FreelancerTestDataFactory.createFreelancer(3, ProfileStatus.REJECTED));
+
+        when(freelancerRepository.getFreelancersByProfileStatus(ProfileStatus.PENDING))
+                .thenReturn(Collections.singletonList(freelancers.get(0)));
+
+        // Act
+        List<Freelancer> result = freelancerProfileService.getPendingFreelancers();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(ProfileStatus.PENDING, result.get(0).getProfileStatus());
     }
 }

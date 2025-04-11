@@ -11,13 +11,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/freelancers")
+@RequestMapping("/api/admin_management")
 @RequiredArgsConstructor
-public class FreelancerProfileController {
+public class ProfileReviewController {
 
     private final FreelancerProfileService freelancerProfileService;
 
-    @GetMapping("/getPendingFreelancers")
+    @GetMapping("/pending_freelancers")
     public ResponseEntity<List<Freelancer>> getPendingFreelancers() {
         List<Freelancer> pendingFreelancers = freelancerProfileService.getPendingFreelancers();
         return ResponseEntity.ok(pendingFreelancers);
