@@ -1,14 +1,15 @@
 package com.jm_admin_management.controller;
 
 import com.common.entity.Freelancer;
+import com.jm_admin_management.dto.UpdateProfileStatusRequest;
 import com.jm_admin_management.service.FreelancerProfileService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/admin_management")
@@ -23,5 +24,10 @@ public class ProfileReviewController {
         return ResponseEntity.ok(pendingFreelancers);
     }
 
-
+    @PatchMapping("/freelancers/{freelancerId}/status")
+    public ResponseEntity<String> updateFreelancerStatus(
+            @PathVariable UUID freelancerId, @RequestBody @Valid UpdateProfileStatusRequest request){
+        freelancerProfileService.updateProfileStatus(freelancerId, request.getProfileStatus());
+        return ResponseEntity.ok("Freelancer profile status updated successfully.");
+    }
 }

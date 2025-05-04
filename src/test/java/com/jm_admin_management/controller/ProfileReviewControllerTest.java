@@ -3,6 +3,7 @@ package com.jm_admin_management.controller;
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jm_admin_management.dto.UpdateProfileStatusRequest;
 import com.jm_admin_management.service.FreelancerProfileService;
 import com.jm_admin_management.test_utils.factory.FreelancerTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
@@ -15,8 +16,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
+import java.util.UUID;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,4 +76,43 @@ class ProfileReviewControllerTest {
         verify(freelancerProfileService, times(1)).getPendingFreelancers();
     }
 
+    @Test
+    @DisplayName("PATCH /api/admin_management/freelancers/{freelancerId}/status should update freelancer status successfully")
+    void updateFreelancerStatus_ShouldReturnOk() throws Exception {
+        // Arrange
+        UUID freelancerId = UUID.randomUUID();
+        ProfileStatus newStatus = ProfileStatus.APPROVED;
+        UpdateProfileStatusRequest request = new UpdateProfileStatusRequest();
+        request.setProfileStatus(newStatus);
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/status", freelancerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Freelancer profile status updated successfully."))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(freelancerProfileService, times(1)).updateProfileStatus(freelancerId, newStatus);
+    }
+
+    @Test
+    @DisplayName("PATCH /api/admin_management/freelancers/{freelancerId}/status should return bad request for invalid status")
+    void updateFreelancerStatus_WithInvalidStatus_ShouldReturnBadRequest() throws Exception {
+        // Arrange
+        UUID freelancerId = UUID.randomUUID();
+        UpdateProfileStatusRequest request = new UpdateProfileStatusRequest();
+        request.setProfileStatus(null); // Simulate invalid status
+        String requestBody = objectMapper.writeValueAsString(request);
+
+        // Act & Assert
+        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/status", freelancerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBody))
+                .andExpect(status().isBadRequest())
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(freelancerProfileService, never()).updateProfileStatus(any(), any());
+    }
 }

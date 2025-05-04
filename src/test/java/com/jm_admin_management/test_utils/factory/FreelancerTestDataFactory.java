@@ -38,7 +38,7 @@ public class FreelancerTestDataFactory {
             "Data scientist with background in machine learning and statistical analysis."
     };
 
-    private static final Double[] HOURLY_RATES = { 75.0, 85.0, 65.0, 90.0, 95.0};
+    private static final int[] HOURLY_RATES = { 75, 85, 65, 90, 95 };
 
     private static final String[] ADDRESSES = {
             "123 Tech Street",

@@ -2,6 +2,7 @@ package com.jm_admin_management.serviceImpl;
 
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
+import com.jm_admin_management.exceptionHandling.FreelancerNotFoundException;
 import com.jm_admin_management.repository.FreelancerRepository;
 import com.jm_admin_management.test_utils.factory.FreelancerTestDataFactory;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +12,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -111,5 +112,42 @@ public class FreelancerProfileServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(ProfileStatus.PENDING, result.get(0).getProfileStatus());
+    }
+
+    @Test
+    @DisplayName("updateProfileStatus should update freelancer status when freelancer exists")
+    void updateProfileStatus_WhenFreelancerExists_ShouldUpdateStatus() {
+        // Arrange
+        UUID freelancerId = UUID.randomUUID();
+        ProfileStatus newStatus = ProfileStatus.APPROVED;
+        Freelancer existingFreelancer = new Freelancer();
+        existingFreelancer.setFreelancerId(freelancerId);
+        existingFreelancer.setProfileStatus(ProfileStatus.PENDING);
+
+        when(freelancerRepository.findById(freelancerId)).thenReturn(Optional.of(existingFreelancer));
+        when(freelancerRepository.save(existingFreelancer)).thenReturn(existingFreelancer);
+
+        // Act
+        freelancerProfileService.updateProfileStatus(freelancerId, newStatus);
+
+        // Assert
+        assertEquals(newStatus, existingFreelancer.getProfileStatus());
+        verify(freelancerRepository, times(1)).findById(freelancerId);
+        verify(freelancerRepository, times(1)).save(existingFreelancer);
+    }
+
+    @Test
+    @DisplayName("updateProfileStatus should throw FreelancerNotFoundException when freelancer does not exist")
+    void updateProfileStatus_WhenFreelancerDoesNotExist_ShouldThrowException() {
+        // Arrange
+        UUID freelancerId = UUID.randomUUID();
+        ProfileStatus newStatus = ProfileStatus.APPROVED;
+
+        when(freelancerRepository.findById(freelancerId)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        assertThrows(FreelancerNotFoundException.class, () -> freelancerProfileService.updateProfileStatus(freelancerId, newStatus));
+        verify(freelancerRepository, times(1)).findById(freelancerId);
+        verify(freelancerRepository, never()).save(any());
     }
 }
