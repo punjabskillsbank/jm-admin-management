@@ -78,7 +78,7 @@ class ProfileReviewControllerTest {
 
     @Test
     @DisplayName("PATCH /api/admin_management/freelancers/{freelancerId}/status should update freelancer status successfully")
-    void updateFreelancerStatus_ShouldReturnOk() throws Exception {
+    void updateProfileStatus_ShouldReturnOk() throws Exception {
         // Arrange
         UUID freelancerId = UUID.randomUUID();
         ProfileStatus newStatus = ProfileStatus.APPROVED;
@@ -87,7 +87,7 @@ class ProfileReviewControllerTest {
         String requestBody = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/status", freelancerId)
+        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/update_profile_status", freelancerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -99,7 +99,7 @@ class ProfileReviewControllerTest {
 
     @Test
     @DisplayName("PATCH /api/admin_management/freelancers/{freelancerId}/status should return bad request for invalid status")
-    void updateFreelancerStatus_WithInvalidStatus_ShouldReturnBadRequest() throws Exception {
+    void updateProfileStatus_WithInvalidStatus_ShouldReturnBadRequest() throws Exception {
         // Arrange
         UUID freelancerId = UUID.randomUUID();
         UpdateProfileStatusRequest request = new UpdateProfileStatusRequest();
@@ -107,7 +107,7 @@ class ProfileReviewControllerTest {
         String requestBody = objectMapper.writeValueAsString(request);
 
         // Act & Assert
-        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/status", freelancerId)
+        mockMvc.perform(patch("/api/admin_management/freelancers/{freelancerId}/update_profile_status", freelancerId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isBadRequest())

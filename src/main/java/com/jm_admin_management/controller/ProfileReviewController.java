@@ -24,8 +24,8 @@ public class ProfileReviewController {
         return ResponseEntity.ok(pendingFreelancers);
     }
 
-    @PatchMapping("/freelancers/{freelancerId}/status")
-    public ResponseEntity<String> updateFreelancerStatus(
+    @PatchMapping("/freelancers/{freelancerId}/update_profile_status")
+    public ResponseEntity<String> updateProfileStatus(
             @PathVariable UUID freelancerId, @RequestBody @Valid UpdateProfileStatusRequest request){
         freelancerProfileService.updateProfileStatus(freelancerId, request.getProfileStatus());
         return ResponseEntity.ok("Freelancer profile status updated successfully.");
