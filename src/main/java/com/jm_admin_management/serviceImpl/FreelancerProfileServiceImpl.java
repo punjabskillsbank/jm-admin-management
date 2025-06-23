@@ -4,8 +4,11 @@ import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
 import com.jm_admin_management.exceptionHandling.FreelancerNotFoundException;
 import com.jm_admin_management.repository.FreelancerRepository;
+import com.jm_admin_management.repository.JobPostingRepository;
+import com.jm_admin_management.repository.ProposalRepository;
 import com.jm_admin_management.service.FreelancerProfileService;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -36,5 +39,6 @@ public class FreelancerProfileServiceImpl implements FreelancerProfileService {
         freelancer.setProfileStatus(newStatus);
         freelancerRepository.save(freelancer);
     }
+
 
 }

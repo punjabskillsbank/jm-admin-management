@@ -9,6 +9,7 @@ import com.common.entity.Education;
 import com.common.entity.Freelancer;
 import com.common.entity.Job;
 import com.common.enums.ProfileStatus;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,7 +113,7 @@ public class FreelancerTestDataFactory {
         freelancer.setCountry(COUNTRY);
         freelancer.setPostalCode(POSTAL_CODES[index]);
         freelancer.setPhoneNumber(PHONE_NUMBERS[index]);
-        freelancer.setAbcMember(ABC_MEMBERSHIPS[index]);
+        freelancer.setIsAbcMember(ABC_MEMBERSHIPS[index]);
         freelancer.setProfilePhotoURL(PROFILE_PHOTOS[index]);
         freelancer.setProfileStatus(status);
         freelancer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
@@ -295,7 +296,7 @@ public class FreelancerTestDataFactory {
                 .country(freelancer.getCountry())
                 .postalCode(freelancer.getPostalCode())
                 .phoneNumber(freelancer.getPhoneNumber())
-                .isAbcMember(freelancer.isAbcMember())
+                .isAbcMember(freelancer.getIsAbcMember())
                 .profilePhotoURL(freelancer.getProfilePhotoURL())
                 .profileStatus(freelancer.getProfileStatus())
                 .build();
