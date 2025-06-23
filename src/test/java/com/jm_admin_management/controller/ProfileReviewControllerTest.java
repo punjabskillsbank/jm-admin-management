@@ -1,7 +1,6 @@
 
 package com.jm_admin_management.controller;
 
-import com.common.dto.JobPostingDTO;
 import com.common.dto.ProposalSubmissionDTO;
 import com.common.entity.Freelancer;
 import com.common.enums.ProfileStatus;
