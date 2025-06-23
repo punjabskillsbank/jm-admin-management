@@ -14,6 +14,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class JobPostingReviewDTO {
+
     private JobPostingDTO jobPosting;
     private List<ProposalSubmissionDTO> proposals;
 }

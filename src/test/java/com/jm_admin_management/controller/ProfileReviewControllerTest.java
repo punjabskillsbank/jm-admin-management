@@ -1,14 +1,10 @@
+
 package com.jm_admin_management.controller;
 
-import com.common.dto.CategoryDTO;
 import com.common.dto.JobPostingDTO;
 import com.common.dto.ProposalSubmissionDTO;
-import com.common.dto.SkillDTO;
 import com.common.entity.Freelancer;
-import com.common.enums.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
+import com.common.enums.ProfileStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jm_admin_management.dto.JobPostingReviewDTO;
 import com.jm_admin_management.dto.UpdateProfileStatusRequest;
@@ -17,25 +13,18 @@ import com.jm_admin_management.service.FreelancerProfileService;
 import com.jm_admin_management.test_utils.factory.FreelancerTestDataFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,6 +66,7 @@ class ProfileReviewControllerTest {
 
         verify(freelancerProfileService, times(1)).getPendingFreelancers();
     }
+
 
     @Test
     @DisplayName("GET /api/admin_management/pending_freelancers should return empty list when no pending freelancers")
@@ -134,5 +124,41 @@ class ProfileReviewControllerTest {
 
         verify(freelancerProfileService, never()).updateProfileStatus(any(), any());
     }
+    @Test
+    @DisplayName("GET /api/admin_management/{jobPostingId} should return JobPostingReviewDTO with proposals")
+    void testGetJobPostingWithProposals() throws Exception {
+        Long jobPostingId = 1L;
+        JobPostingReviewDTO reviewDTO = new JobPostingReviewDTO();
+        reviewDTO.setProposals(List.of(
+                new ProposalSubmissionDTO(), new ProposalSubmissionDTO()
+        ));
 
+        when(adminReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
+
+        mockMvc.perform(get("/api/admin_management/{jobPostingId}", jobPostingId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.proposals", hasSize(2)))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(adminReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
+    }
+    @Test
+    @DisplayName("GET /api/admin_management/{jobPostingId} should return empty proposals list when no proposals exist")
+    void testGetJobPostingWithProposals_EmptyList() throws Exception
+    {
+        Long jobPostingId = 1L;
+        JobPostingReviewDTO reviewDTO = new JobPostingReviewDTO();
+        reviewDTO.setProposals(List.of());
+
+        when(adminReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
+
+        mockMvc.perform(get("/api/admin_management/{jobPostingId}", jobPostingId)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.proposals", hasSize(0)))
+                .andDo(MockMvcResultHandlers.print());
+
+        verify(adminReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
+    }
 }

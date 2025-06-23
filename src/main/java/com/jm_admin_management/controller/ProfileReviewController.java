@@ -22,7 +22,6 @@ import java.util.UUID;
 public class ProfileReviewController {
 
     private final FreelancerProfileService freelancerProfileService;
-    private final ModelMapper modelMapper;
     private final AdminReviewService adminReviewService;
 
 
