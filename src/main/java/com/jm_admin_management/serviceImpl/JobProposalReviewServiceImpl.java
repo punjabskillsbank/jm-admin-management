@@ -1,6 +1,5 @@
 package com.jm_admin_management.serviceImpl;
 
-
 import com.common.dto.JobPostingDTO;
 import com.common.dto.ProposalSubmissionDTO;
 import com.common.entity.JobPosting;
@@ -9,7 +8,7 @@ import com.common.exceptionHandling.JobPostingNotFoundException;
 import com.jm_admin_management.dto.JobPostingReviewDTO;
 import com.jm_admin_management.repository.JobPostingRepository;
 import com.jm_admin_management.repository.ProposalRepository;
-import com.jm_admin_management.service.AdminReviewService;
+import com.jm_admin_management.service.JobProposalReviewService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class AdminReviewServiceImpl implements AdminReviewService {
+public class JobProposalReviewServiceImpl implements JobProposalReviewService {
 
     private final ModelMapper modelMapper;
     private final JobPostingRepository jobPostingRepository;
