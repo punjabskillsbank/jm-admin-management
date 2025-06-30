@@ -34,10 +34,9 @@ public class JobProposalReviewServiceImpl implements JobProposalReviewService {
         List<ProposalSubmissionDTO> proposalDTOs = proposals.stream()
                 .map(p -> modelMapper.map(p, ProposalSubmissionDTO.class))
                 .toList();
+        JobPostingReviewDTO reviewDTO = modelMapper.map(jobPostingDTO, JobPostingReviewDTO.class);
+        reviewDTO.setProposals(proposalDTOs);
+        return reviewDTO;
 
-        return JobPostingReviewDTO.builder()
-                .jobPosting(jobPostingDTO)
-                .proposals(proposalDTOs)
-                .build();
     }
 }

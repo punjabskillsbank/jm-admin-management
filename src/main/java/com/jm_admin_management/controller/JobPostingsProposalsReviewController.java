@@ -13,10 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class ProposalsReviewController {
+@RequestMapping("api/admin_management/job_postings")
+public class JobPostingsProposalsReviewController {
     private final JobProposalReviewService jobProposalReviewService;
 
-    @GetMapping("/{jobPostingId}")
+    @GetMapping("/{jobPostingId}/proposals")
     public ResponseEntity<JobPostingReviewDTO> getJobPostingWithProposals(@PathVariable Long jobPostingId) {
         JobPostingReviewDTO reviewDTO = jobProposalReviewService.getJobPostingWithProposals(jobPostingId);
         return ResponseEntity.ok(reviewDTO);
