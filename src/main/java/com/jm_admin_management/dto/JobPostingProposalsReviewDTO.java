@@ -1,5 +1,6 @@
 package com.jm_admin_management.dto;
 
+
 import com.common.dto.JobPostingDTO;
 import com.common.dto.ProposalSubmissionDTO;
 import lombok.AllArgsConstructor;
@@ -13,7 +14,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class JobPostingReviewDTO {
+public class JobPostingProposalsReviewDTO {
 
     private JobPostingDTO jobPosting;
     private List<ProposalSubmissionDTO> proposals;

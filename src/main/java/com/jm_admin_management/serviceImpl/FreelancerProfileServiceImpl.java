@@ -36,6 +36,4 @@ public class FreelancerProfileServiceImpl implements FreelancerProfileService {
         freelancer.setProfileStatus(newStatus);
         freelancerRepository.save(freelancer);
     }
-
-
 }

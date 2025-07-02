@@ -1,7 +1,7 @@
 package com.jm_admin_management.controller;
 
-import com.jm_admin_management.dto.JobPostingReviewDTO;
-import com.jm_admin_management.service.JobProposalReviewService;
+import com.jm_admin_management.dto.JobPostingProposalsReviewDTO;
+import com.jm_admin_management.service.JobPostingProposalsReviewService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("api/admin_management/job_postings")
 public class JobPostingsProposalsReviewController {
-    private final JobProposalReviewService jobProposalReviewService;
+    private final JobPostingProposalsReviewService jobPostingProposalsReviewService;
 
     @GetMapping("/{jobPostingId}/proposals")
-    public ResponseEntity<JobPostingReviewDTO> getJobPostingWithProposals(@PathVariable Long jobPostingId) {
-        JobPostingReviewDTO reviewDTO = jobProposalReviewService.getJobPostingWithProposals(jobPostingId);
+    public ResponseEntity<JobPostingProposalsReviewDTO> getJobPostingWithProposals(@PathVariable Long jobPostingId) {
+        JobPostingProposalsReviewDTO reviewDTO = jobPostingProposalsReviewService.getJobPostingWithProposals(jobPostingId);
         return ResponseEntity.ok(reviewDTO);
     }
 }

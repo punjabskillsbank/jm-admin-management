@@ -114,7 +114,7 @@ public class FreelancerTestDataFactory {
         freelancer.setPostalCode(POSTAL_CODES[index]);
         freelancer.setPhoneNumber(PHONE_NUMBERS[index]);
         freelancer.setIsAbcMember(ABC_MEMBERSHIPS[index]);
-        freelancer.setProfilePhotoURL(PROFILE_PHOTOS[index]);
+        freelancer.setProfilePhotoS3Key(PROFILE_PHOTOS[index]);
         freelancer.setProfileStatus(status);
         freelancer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         freelancer.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -148,7 +148,7 @@ public class FreelancerTestDataFactory {
                 .postalCode(POSTAL_CODES[index])
                 .phoneNumber(PHONE_NUMBERS[index])
                 .isAbcMember(ABC_MEMBERSHIPS[index])
-                .profilePhotoURL(PROFILE_PHOTOS[index])
+                .profilePhotoS3Key(PROFILE_PHOTOS[index])
                 .profileStatus(status)
                 .educations(new ArrayList<>())
                 .jobs(new ArrayList<>())
@@ -297,7 +297,7 @@ public class FreelancerTestDataFactory {
                 .postalCode(freelancer.getPostalCode())
                 .phoneNumber(freelancer.getPhoneNumber())
                 .isAbcMember(freelancer.getIsAbcMember())
-                .profilePhotoURL(freelancer.getProfilePhotoURL())
+                .profilePhotoS3Key(freelancer.getProfilePhotoS3Key())
                 .profileStatus(freelancer.getProfileStatus())
                 .build();
     }

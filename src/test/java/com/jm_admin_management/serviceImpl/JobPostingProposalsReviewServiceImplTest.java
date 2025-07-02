@@ -3,7 +3,8 @@ package com.jm_admin_management.serviceImpl;
 import com.common.entity.JobPosting;
 import com.common.entity.ProposalSubmission;
 import com.common.exceptionHandling.JobPostingNotFoundException;
-import com.jm_admin_management.dto.JobPostingReviewDTO;
+
+import com.jm_admin_management.dto.JobPostingProposalsReviewDTO;
 import com.jm_admin_management.repository.JobPostingRepository;
 import com.jm_admin_management.repository.ProposalRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class JobProposalReviewServiceImplTest {
+class JobPostingProposalsReviewServiceImplTest {
 
     @Mock
     private JobPostingRepository jobPostingRepository;
@@ -33,12 +34,12 @@ class JobProposalReviewServiceImplTest {
     private ModelMapper modelMapper;
 
     @InjectMocks
-    private JobProposalReviewServiceImpl adminReviewService;
+    private JobPostingProposalsReviewServiceImpl adminReviewService;
 
     @BeforeEach
     void setUp() {
         modelMapper = new ModelMapper();
-        adminReviewService = new JobProposalReviewServiceImpl(modelMapper, jobPostingRepository, proposalRepository);
+        adminReviewService = new JobPostingProposalsReviewServiceImpl(modelMapper, jobPostingRepository, proposalRepository);
     }
 
     @Test
@@ -63,7 +64,7 @@ class JobProposalReviewServiceImplTest {
         when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.of(jobPosting));
         when(proposalRepository.findByJobPostingId(jobPostingId)).thenReturn(proposals);
 
-        JobPostingReviewDTO result = adminReviewService.getJobPostingWithProposals(jobPostingId);
+        JobPostingProposalsReviewDTO result = adminReviewService.getJobPostingWithProposals(jobPostingId);
 
         assertNotNull(result);
         assertNotNull(result.getJobPosting());

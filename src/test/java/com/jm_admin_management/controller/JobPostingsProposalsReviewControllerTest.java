@@ -1,11 +1,11 @@
 package com.jm_admin_management.controller;
 
-
 import com.common.dto.ProposalSubmissionDTO;
-import com.common.enums.*;
+import com.common.enums.ProposalStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jm_admin_management.dto.JobPostingReviewDTO;
-import com.jm_admin_management.service.JobProposalReviewService;
+import com.jm_admin_management.dto.JobPostingProposalsReviewDTO;
+import com.jm_admin_management.service.JobPostingProposalsReviewService;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +15,20 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
 import java.util.List;
 import java.util.UUID;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(JobPostingsProposalsReviewController.class)
-class ProposalReviewControllerTest {
+class JobPostingsProposalsReviewControllerTest {
 
     @MockitoBean
-    private JobProposalReviewService jobProposalReviewService;
+    private JobPostingProposalsReviewService jobPostingProposalsReviewService;
 
     @Autowired
     private MockMvc mockMvc;
@@ -35,7 +37,7 @@ class ProposalReviewControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
-    @DisplayName("GET /api/admin_management/proposals_review/{jobPostingId} should return JobPostingReviewDTO with jobPosting and proposals")
+    @DisplayName("GET /api/admin_management/job_postings/{jobPostingId}/proposals should return JobPostingReviewDTO with jobPosting and proposals")
     void testGetJobPostingWithProposals() throws Exception {
         Long jobPostingId = 1L;
 
@@ -57,36 +59,36 @@ class ProposalReviewControllerTest {
                 .coverLetter("I am very interested in this project.")
                 .build();
 
-        JobPostingReviewDTO reviewDTO = new JobPostingReviewDTO();
+        JobPostingProposalsReviewDTO reviewDTO = new JobPostingProposalsReviewDTO();
         reviewDTO.setProposals(List.of(proposal1, proposal2));
 
-        when(jobProposalReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
+        when(jobPostingProposalsReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
 
-        mockMvc.perform(get("/api/admin_management/proposals_review/{jobPostingId}", jobPostingId)
+        mockMvc.perform(get("/api/admin_management/job_postings/{jobPostingId}/proposals", jobPostingId)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.proposals", hasSize(2)))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(jobProposalReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
+        verify(jobPostingProposalsReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
     }
 
     @Test
-    @DisplayName("GET /api/admin_management/proposals_review/{jobPostingId} should return empty proposals list when no proposals exist")
-    void testGetJobPostingWithProposals_EmptyList() throws Exception
-    {
+    @DisplayName("GET /api/admin_management/job_postings/{jobPostingId}/proposals should return empty proposals list when no proposals exist")
+    void testGetJobPostingWithProposals_EmptyList() throws Exception {
         Long jobPostingId = 1L;
-        JobPostingReviewDTO reviewDTO = new JobPostingReviewDTO();
+
+        JobPostingProposalsReviewDTO reviewDTO = new JobPostingProposalsReviewDTO();
         reviewDTO.setProposals(List.of());
 
-        when(jobProposalReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
+        when(jobPostingProposalsReviewService.getJobPostingWithProposals(jobPostingId)).thenReturn(reviewDTO);
 
-        mockMvc.perform(get("/api/admin_management/proposals_review/{jobPostingId}", jobPostingId)
+        mockMvc.perform(get("/api/admin_management/job_postings/{jobPostingId}/proposals", jobPostingId)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(MockMvcResultMatchers.jsonPath("$.proposals", hasSize(0)))
                 .andDo(MockMvcResultHandlers.print());
 
-        verify(jobProposalReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
+        verify(jobPostingProposalsReviewService, times(1)).getJobPostingWithProposals(jobPostingId);
     }
 }
