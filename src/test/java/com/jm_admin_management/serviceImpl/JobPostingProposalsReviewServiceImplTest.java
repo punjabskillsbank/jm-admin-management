@@ -34,12 +34,12 @@ class JobPostingProposalsReviewServiceImplTest {
     private ModelMapper modelMapper;
 
     @InjectMocks
-    private JobPostingProposalsReviewServiceImpl adminReviewService;
+    private JobPostingProposalsReviewServiceImpl JobPostingProposalsReviewService;
 
     @BeforeEach
     void setUp() {
         modelMapper = new ModelMapper();
-        adminReviewService = new JobPostingProposalsReviewServiceImpl(modelMapper, jobPostingRepository, proposalRepository);
+        JobPostingProposalsReviewService = new JobPostingProposalsReviewServiceImpl(modelMapper, jobPostingRepository, proposalRepository);
     }
 
     @Test
@@ -64,7 +64,7 @@ class JobPostingProposalsReviewServiceImplTest {
         when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.of(jobPosting));
         when(proposalRepository.findByJobPostingId(jobPostingId)).thenReturn(proposals);
 
-        JobPostingProposalsReviewDTO result = adminReviewService.getJobPostingWithProposals(jobPostingId);
+        JobPostingProposalsReviewDTO result = JobPostingProposalsReviewService.getJobPostingWithProposals(jobPostingId);
 
         assertNotNull(result);
         assertNotNull(result.getJobPosting());
@@ -86,7 +86,7 @@ class JobPostingProposalsReviewServiceImplTest {
         when(jobPostingRepository.findById(jobPostingId)).thenReturn(Optional.empty());
 
         assertThrows(JobPostingNotFoundException.class,
-                () -> adminReviewService.getJobPostingWithProposals(jobPostingId));
+                () -> JobPostingProposalsReviewService.getJobPostingWithProposals(jobPostingId));
 
         verify(jobPostingRepository, times(1)).findById(jobPostingId);
         verify(proposalRepository, never()).findByJobPostingId(any());
