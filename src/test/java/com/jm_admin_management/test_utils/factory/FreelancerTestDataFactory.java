@@ -9,6 +9,7 @@ import com.common.entity.Education;
 import com.common.entity.Freelancer;
 import com.common.entity.Job;
 import com.common.enums.ProfileStatus;
+
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,8 +113,8 @@ public class FreelancerTestDataFactory {
         freelancer.setCountry(COUNTRY);
         freelancer.setPostalCode(POSTAL_CODES[index]);
         freelancer.setPhoneNumber(PHONE_NUMBERS[index]);
-        freelancer.setAbcMember(ABC_MEMBERSHIPS[index]);
-        freelancer.setProfilePhotoURL(PROFILE_PHOTOS[index]);
+        freelancer.setIsAbcMember(ABC_MEMBERSHIPS[index]);
+        freelancer.setProfilePhotoS3Key(PROFILE_PHOTOS[index]);
         freelancer.setProfileStatus(status);
         freelancer.setCreatedAt(new Timestamp(System.currentTimeMillis()));
         freelancer.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
@@ -147,7 +148,7 @@ public class FreelancerTestDataFactory {
                 .postalCode(POSTAL_CODES[index])
                 .phoneNumber(PHONE_NUMBERS[index])
                 .isAbcMember(ABC_MEMBERSHIPS[index])
-                .profilePhotoURL(PROFILE_PHOTOS[index])
+                .profilePhotoS3Key(PROFILE_PHOTOS[index])
                 .profileStatus(status)
                 .educations(new ArrayList<>())
                 .jobs(new ArrayList<>())
@@ -295,8 +296,8 @@ public class FreelancerTestDataFactory {
                 .country(freelancer.getCountry())
                 .postalCode(freelancer.getPostalCode())
                 .phoneNumber(freelancer.getPhoneNumber())
-                .isAbcMember(freelancer.isAbcMember())
-                .profilePhotoURL(freelancer.getProfilePhotoURL())
+                .isAbcMember(freelancer.getIsAbcMember())
+                .profilePhotoS3Key(freelancer.getProfilePhotoS3Key())
                 .profileStatus(freelancer.getProfileStatus())
                 .build();
     }
