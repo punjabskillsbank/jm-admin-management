@@ -12,11 +12,10 @@ import java.util.UUID;
 public interface ClientRepository extends JpaRepository<Client, UUID> {
 
     @Query(value = """
-        SELECT c.client_id, c.profile_photo_url, c.industry,
-               j.job_posting_status, COUNT(j.job_posting_id)
+        SELECT c.client_id, c.profile_photo_url, c.industry, c.company_name, j.job_posting_status, COUNT(j.job_posting_id) 
         FROM clients c
         LEFT JOIN job_postings j ON c.client_id = j.client_id
-        GROUP BY c.client_id, c.profile_photo_url, c.industry, j.job_posting_status
+        GROUP BY c.client_id, c.profile_photo_url, c.industry, c.company_name, j.job_posting_status
         """, nativeQuery = true)
     List<Object[]> findClientsWithJobCounts();
 }

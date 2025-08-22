@@ -1,18 +1,16 @@
 package com.jm_admin_management.controller;
 
+import com.common.enums.JobPostingStatus;
 import com.jm_admin_management.dto.ClientJobStatsDTO;
 import com.jm_admin_management.service.ClientService;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
-
-
 
 class ClientControllerTest {
 
@@ -21,9 +19,21 @@ class ClientControllerTest {
         ClientService clientService = mock(ClientService.class);
         ClientController controller = new ClientController(clientService);
 
-        ClientJobStatsDTO dto1 = new ClientJobStatsDTO();
-        ClientJobStatsDTO dto2 = new ClientJobStatsDTO();
-        List<ClientJobStatsDTO> statsList = Arrays.asList(dto1, dto2);
+        UUID clientId = UUID.randomUUID();
+        ClientJobStatsDTO dto = new ClientJobStatsDTO();
+        dto.setClientId(clientId);
+        dto.setProfilePhotoURL("url");
+        dto.setIndustry("industry");
+        dto.setCompanyName("company");
+
+        Map<JobPostingStatus, Long> jobCounts = new EnumMap<>(JobPostingStatus.class);
+        for (JobPostingStatus status : JobPostingStatus.values()) {
+            jobCounts.put(status, 0L);
+        }
+        jobCounts.put(JobPostingStatus.OPEN, 5L); // Use the correct enum constant name
+        dto.setJobCounts(jobCounts);
+
+        List<ClientJobStatsDTO> statsList = Collections.singletonList(dto);
 
         when(clientService.getClientJobStats()).thenReturn(statsList);
 
@@ -32,6 +42,13 @@ class ClientControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(statsList, response.getBody());
         verify(clientService, times(1)).getClientJobStats();
+
+        // Check jobCounts initialization and values
+        ClientJobStatsDTO resultDto = response.getBody().get(0);
+        for (JobPostingStatus status : JobPostingStatus.values()) {
+            assertNotNull(resultDto.getJobCounts().get(status));
+        }
+        assertEquals(5L, resultDto.getJobCounts().get(JobPostingStatus.OPEN)); // Use the correct enum constant name
     }
 
     @Test
