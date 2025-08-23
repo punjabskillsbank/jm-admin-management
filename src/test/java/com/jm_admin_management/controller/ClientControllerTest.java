@@ -30,7 +30,7 @@ class ClientControllerTest {
         for (JobPostingStatus status : JobPostingStatus.values()) {
             jobCounts.put(status, 0L);
         }
-        jobCounts.put(JobPostingStatus.OPEN, 5L); // Use the correct enum constant name
+        jobCounts.put(JobPostingStatus.OPEN, 5L);
         dto.setJobCounts(jobCounts);
 
         List<ClientJobStatsDTO> statsList = Collections.singletonList(dto);
@@ -43,12 +43,11 @@ class ClientControllerTest {
         assertEquals(statsList, response.getBody());
         verify(clientService, times(1)).getClientJobStats();
 
-        // Check jobCounts initialization and values
         ClientJobStatsDTO resultDto = response.getBody().get(0);
         for (JobPostingStatus status : JobPostingStatus.values()) {
             assertNotNull(resultDto.getJobCounts().get(status));
         }
-        assertEquals(5L, resultDto.getJobCounts().get(JobPostingStatus.OPEN)); // Use the correct enum constant name
+        assertEquals(5L, resultDto.getJobCounts().get(JobPostingStatus.OPEN));
     }
 
     @Test
