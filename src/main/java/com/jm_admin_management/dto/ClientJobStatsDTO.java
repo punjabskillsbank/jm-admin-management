@@ -1,11 +1,15 @@
 package com.jm_admin_management.dto;
 
 import com.common.enums.JobPostingStatus;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Map;
 import java.util.UUID;
-
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Data
 public class ClientJobStatsDTO {
     private UUID clientId;

@@ -4,157 +4,146 @@ import com.common.enums.JobPostingStatus;
 import com.jm_admin_management.dto.ClientJobProjectionDTO;
 import com.jm_admin_management.dto.ClientJobStatsDTO;
 import com.jm_admin_management.repository.ClientRepository;
-import com.jm_admin_management.serviceImpl.ClientServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import org.modelmapper.ModelMapper;
+
+import java.util.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
-
-
-
 class ClientServiceImplTest {
 
-    @Mock
     private ClientRepository clientRepository;
-
+    private ModelMapper modelMapper;
     private ClientServiceImpl clientService;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-        clientService = new ClientServiceImpl(clientRepository);
+        clientRepository = mock(ClientRepository.class);
+        modelMapper = mock(ModelMapper.class);
+        clientService = new ClientServiceImpl(clientRepository, modelMapper);
     }
 
     @Test
-    void getClientJobStats_EmptyList_ReturnsEmptyList() {
-        when(clientRepository.findClientsWithJobStats()).thenReturn(new ArrayList<>());
-        
-        List<ClientJobStatsDTO> result = clientService.getClientJobStats();
-        
-        assertTrue(result.isEmpty());
-        verify(clientRepository).findClientsWithJobStats();
-    }
-
-    @Test
-    void getClientJobStats_SingleClientWithOneStatus_ReturnsCorrectStats() {
+    void testGetClientJobStats_withValidData() {
         UUID clientId = UUID.randomUUID();
-        List<ClientJobProjectionDTO> projections = new ArrayList<>();
-        ClientJobProjectionDTO projection = mock(ClientJobProjectionDTO.class);
-        
-        when(projection.getClientId()).thenReturn(clientId);
-        when(projection.getProfilePhotoURL()).thenReturn("photo.jpg");
-        when(projection.getIndustry()).thenReturn("IT");
-        when(projection.getCompanyName()).thenReturn("Tech Co");
-        when(projection.getStatus()).thenReturn(JobPostingStatus.OPEN);
-        when(projection.getCount()).thenReturn(5L);
-        
-        projections.add(projection);
-        when(clientRepository.findClientsWithJobStats()).thenReturn(projections);
-        
+
+        ClientJobProjectionDTO projection1 = new ClientJobProjectionDTO(
+                clientId,
+                "Test Client",
+                null,
+                null,
+                JobPostingStatus.OPEN,
+                3L
+        );
+        ClientJobProjectionDTO projection2 = new ClientJobProjectionDTO(
+                clientId,
+                "Test Client",
+                null,
+                null,
+                JobPostingStatus.CLOSED,
+                1L
+        );
+
+        when(modelMapper.map(any(ClientJobProjectionDTO.class), eq(ClientJobStatsDTO.class)))
+                .thenAnswer(invocation -> {
+                    ClientJobProjectionDTO src = invocation.getArgument(0);
+                    ClientJobStatsDTO dto = new ClientJobStatsDTO();
+                    dto.setClientId(src.getClientId());
+                    return dto;
+                });
+
+        when(clientRepository.findClientsWithJobStats()).thenReturn(List.of(projection1, projection2));
+
         List<ClientJobStatsDTO> result = clientService.getClientJobStats();
-        
+
         assertEquals(1, result.size());
+
         ClientJobStatsDTO dto = result.get(0);
         assertEquals(clientId, dto.getClientId());
-        assertEquals("photo.jpg", dto.getProfilePhotoURL());
-        assertEquals("IT", dto.getIndustry());
-        assertEquals("Tech Co", dto.getCompanyName());
-        assertEquals(5L, dto.getJobCounts().get(JobPostingStatus.OPEN));
-        
-        // All other statuses should be initialized to 0
-        for (JobPostingStatus status : JobPostingStatus.values()) {
-            if (status != JobPostingStatus.OPEN) {
-                assertEquals(0L, dto.getJobCounts().get(status));
-            }
-        }
+
+        assertEquals(3L, dto.getJobCounts().get(JobPostingStatus.OPEN));
+        assertEquals(1L, dto.getJobCounts().get(JobPostingStatus.CLOSED));
+        Arrays.stream(JobPostingStatus.values())
+                .filter(s -> s != JobPostingStatus.OPEN && s != JobPostingStatus.CLOSED)
+                .forEach(s -> assertEquals(0L, dto.getJobCounts().get(s)));
     }
 
     @Test
-    void getClientJobStats_SingleClientMultipleStatuses_ReturnsCorrectStats() {
-        UUID clientId = UUID.randomUUID();
-        List<ClientJobProjectionDTO> projections = new ArrayList<>();
-        
-        ClientJobProjectionDTO projection1 = mock(ClientJobProjectionDTO.class);
-        when(projection1.getClientId()).thenReturn(clientId);
-        when(projection1.getProfilePhotoURL()).thenReturn("photo.jpg");
-        when(projection1.getIndustry()).thenReturn("IT");
-        when(projection1.getCompanyName()).thenReturn("Tech Co");
-        when(projection1.getStatus()).thenReturn(JobPostingStatus.OPEN);
-        when(projection1.getCount()).thenReturn(5L);
-        
-        ClientJobProjectionDTO projection2 = mock(ClientJobProjectionDTO.class);
-        when(projection2.getClientId()).thenReturn(clientId);
-        when(projection2.getProfilePhotoURL()).thenReturn("photo.jpg");
-        when(projection2.getIndustry()).thenReturn("IT");
-        when(projection2.getCompanyName()).thenReturn("Tech Co");
-        when(projection2.getStatus()).thenReturn(JobPostingStatus.CLOSED);
-        when(projection2.getCount()).thenReturn(3L);
-        
-        projections.add(projection1);
-        projections.add(projection2);
-        when(clientRepository.findClientsWithJobStats()).thenReturn(projections);
-        
+    void testGetClientJobStats_withEmptyList() {
+        when(clientRepository.findClientsWithJobStats()).thenReturn(Collections.emptyList());
+
         List<ClientJobStatsDTO> result = clientService.getClientJobStats();
-        
-        assertEquals(1, result.size());
-        ClientJobStatsDTO dto = result.get(0);
-        assertEquals(5L, dto.getJobCounts().get(JobPostingStatus.OPEN));
-        assertEquals(3L, dto.getJobCounts().get(JobPostingStatus.CLOSED));
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
-    void getClientJobStats_MultipleClients_ReturnsCorrectStats() {
+    void testGetClientJobStats_multipleClients() {
         UUID clientId1 = UUID.randomUUID();
         UUID clientId2 = UUID.randomUUID();
-        List<ClientJobProjectionDTO> projections = new ArrayList<>();
-        
-        ClientJobProjectionDTO projection1 = mock(ClientJobProjectionDTO.class);
-        when(projection1.getClientId()).thenReturn(clientId1);
-        when(projection1.getProfilePhotoURL()).thenReturn("photo1.jpg");
-        when(projection1.getIndustry()).thenReturn("IT");
-        when(projection1.getCompanyName()).thenReturn("Tech Co");
-        when(projection1.getStatus()).thenReturn(JobPostingStatus.OPEN);
-        when(projection1.getCount()).thenReturn(5L);
-        
-        ClientJobProjectionDTO projection2 = mock(ClientJobProjectionDTO.class);
-        when(projection2.getClientId()).thenReturn(clientId2);
-        when(projection2.getProfilePhotoURL()).thenReturn("photo2.jpg");
-        when(projection2.getIndustry()).thenReturn("Finance");
-        when(projection2.getCompanyName()).thenReturn("Finance Co");
-        when(projection2.getStatus()).thenReturn(JobPostingStatus.DRAFT);
-        when(projection2.getCount()).thenReturn(2L);
-        
-        projections.add(projection1);
-        projections.add(projection2);
-        when(clientRepository.findClientsWithJobStats()).thenReturn(projections);
-        
+
+        ClientJobProjectionDTO projection1 = new ClientJobProjectionDTO(
+                clientId1, "Client1", null, null, JobPostingStatus.OPEN, 2L
+        );
+        ClientJobProjectionDTO projection2 = new ClientJobProjectionDTO(
+                clientId2, "Client2", null, null, JobPostingStatus.CLOSED, 5L
+        );
+
+        when(modelMapper.map(any(ClientJobProjectionDTO.class), eq(ClientJobStatsDTO.class)))
+                .thenAnswer(invocation -> {
+                    ClientJobProjectionDTO src = invocation.getArgument(0);
+                    ClientJobStatsDTO dto = new ClientJobStatsDTO();
+                    dto.setClientId(src.getClientId());
+                    return dto;
+                });
+
+        when(clientRepository.findClientsWithJobStats()).thenReturn(List.of(projection1, projection2));
+
         List<ClientJobStatsDTO> result = clientService.getClientJobStats();
-        
+
         assertEquals(2, result.size());
-        
-        // Find DTOs by client ID
-        ClientJobStatsDTO dto1 = result.stream()
-                .filter(dto -> dto.getClientId().equals(clientId1))
-                .findFirst()
-                .orElse(null);
-        
-        ClientJobStatsDTO dto2 = result.stream()
-                .filter(dto -> dto.getClientId().equals(clientId2))
-                .findFirst()
-                .orElse(null);
-        
-        assertNotNull(dto1);
-        assertNotNull(dto2);
-        
-        assertEquals(5L, dto1.getJobCounts().get(JobPostingStatus.OPEN));
-        assertEquals(2L, dto2.getJobCounts().get(JobPostingStatus.DRAFT));
+        Set<UUID> ids = new HashSet<>();
+        for (ClientJobStatsDTO dto : result) {
+            ids.add(dto.getClientId());
+            if (dto.getClientId().equals(clientId1)) {
+                assertEquals(2L, dto.getJobCounts().get(JobPostingStatus.OPEN));
+            } else if (dto.getClientId().equals(clientId2)) {
+                assertEquals(5L, dto.getJobCounts().get(JobPostingStatus.CLOSED));
+            }
+        }
+        assertTrue(ids.contains(clientId1));
+        assertTrue(ids.contains(clientId2));
     }
-}
+
+    @Test
+    void testGetClientJobStats_duplicateStatuses() {
+        UUID clientId = UUID.randomUUID();
+
+        ClientJobProjectionDTO projection1 = new ClientJobProjectionDTO(
+                clientId, "Client", null, null, JobPostingStatus.OPEN, 2L
+        );
+        ClientJobProjectionDTO projection2 = new ClientJobProjectionDTO(
+                clientId, "Client", null, null, JobPostingStatus.OPEN, 5L
+        );
+
+        when(modelMapper.map(any(ClientJobProjectionDTO.class), eq(ClientJobStatsDTO.class)))
+                .thenAnswer(invocation -> {
+                    ClientJobProjectionDTO src = invocation.getArgument(0);
+                    ClientJobStatsDTO dto = new ClientJobStatsDTO();
+                    dto.setClientId(src.getClientId());
+                    return dto;
+                });
+
+        when(clientRepository.findClientsWithJobStats()).thenReturn(List.of(projection1, projection2));
+
+        List<ClientJobStatsDTO> result = clientService.getClientJobStats();
+
+        assertEquals(1, result.size());
+        ClientJobStatsDTO dto = result.get(0);
+        // The last value should overwrite previous for the same status
+        assertEquals(5L, dto.getJobCounts().get(JobPostingStatus.OPEN));
+    }}

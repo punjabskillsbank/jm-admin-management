@@ -5,17 +5,20 @@ import com.jm_admin_management.dto.ClientJobProjectionDTO;
 import com.jm_admin_management.dto.ClientJobStatsDTO;
 import com.jm_admin_management.repository.ClientRepository;
 import com.jm_admin_management.service.ClientService;
+import com.jm_admin_management.config.ModelMapperConfig;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
 @Service
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
+    private final ModelMapper modelMapper;
 
-    public ClientServiceImpl(ClientRepository clientRepository) {
+    public ClientServiceImpl(ClientRepository clientRepository, ModelMapper modelMapper) {
         this.clientRepository = clientRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
@@ -27,11 +30,7 @@ public class ClientServiceImpl implements ClientService {
             UUID clientId = row.getClientId();
 
             ClientJobStatsDTO dto = dtoMap.computeIfAbsent(clientId, id -> {
-                ClientJobStatsDTO newDto = new ClientJobStatsDTO();
-                newDto.setClientId(row.getClientId());
-                newDto.setProfilePhotoURL(row.getProfilePhotoURL());
-                newDto.setIndustry(row.getIndustry());
-                newDto.setCompanyName(row.getCompanyName());
+                ClientJobStatsDTO newDto = modelMapper.map(row, ClientJobStatsDTO.class);
 
                 Map<JobPostingStatus, Long> counts = new EnumMap<>(JobPostingStatus.class);
                 for (JobPostingStatus s : JobPostingStatus.values()) {

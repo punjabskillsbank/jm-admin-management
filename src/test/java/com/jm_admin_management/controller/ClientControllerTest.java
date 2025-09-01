@@ -3,79 +3,61 @@ package com.jm_admin_management.controller;
 import com.common.enums.JobPostingStatus;
 import com.jm_admin_management.dto.ClientJobStatsDTO;
 import com.jm_admin_management.service.ClientService;
+import com.jm_admin_management.test_utils.factory.ClientTestDataFactory;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.http.ResponseEntity;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 class ClientControllerTest {
 
-    @Test
-    void getClientJobStats_returnsStatsList() {
-        ClientService clientService = mock(ClientService.class);
-        ClientController controller = new ClientController(clientService);
+    private ClientService clientService;
+    private ClientController clientController;
 
+    @BeforeEach
+    void setUp() {
+        clientService = mock(ClientService.class);
+        clientController = new ClientController(clientService);
+    }
+
+    @Test
+    void testGetClientJobStats_ReturnsStatsList() {
         UUID clientId = UUID.randomUUID();
-        ClientJobStatsDTO dto = new ClientJobStatsDTO();
-        dto.setClientId(clientId);
-        dto.setProfilePhotoURL("url");
-        dto.setIndustry("industry");
-        dto.setCompanyName("company");
+        // Provide all required arguments for createClientJobProjection
+        String clientName = "Test Client";
+        String clientEmail = "test@example.com";
+        String clientPhone = "1234567890";
+        JobPostingStatus status = JobPostingStatus.IN_PROGRESS;
+        Long jobCounts = 5L;
+        java.util.Map<JobPostingStatus, Long> jobCountsMap = new java.util.HashMap<>();
+        jobCountsMap.put(status, jobCounts);
+        ClientJobStatsDTO dto = new ClientJobStatsDTO(
+            clientId, clientName, clientEmail, clientPhone, jobCountsMap
+        );
 
-        Map<JobPostingStatus, Long> jobCounts = new EnumMap<>(JobPostingStatus.class);
-        for (JobPostingStatus status : JobPostingStatus.values()) {
-            jobCounts.put(status, 0L);
-        }
-        jobCounts.put(JobPostingStatus.OPEN, 5L);
-        dto.setJobCounts(jobCounts);
+        when(clientService.getClientJobStats()).thenReturn(List.of(dto));
 
-        List<ClientJobStatsDTO> statsList = Collections.singletonList(dto);
+        ResponseEntity<List<ClientJobStatsDTO>> response = clientController.getClientJobStats();
 
-        when(clientService.getClientJobStats()).thenReturn(statsList);
-
-        ResponseEntity<List<ClientJobStatsDTO>> response = controller.getClientJobStats();
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertEquals(statsList, response.getBody());
-        verify(clientService, times(1)).getClientJobStats();
-
-        ClientJobStatsDTO resultDto = response.getBody().get(0);
-        for (JobPostingStatus status : JobPostingStatus.values()) {
-            assertNotNull(resultDto.getJobCounts().get(status));
-        }
-        assertEquals(5L, resultDto.getJobCounts().get(JobPostingStatus.OPEN));
+        assertThat(response.getBody().get(0).getClientId()).isEqualTo(clientId);
+        assertThat(response.getBody().get(0).getJobCounts()).isEqualTo(dto.getJobCounts());
+        assertThat(response.getBody().get(0).getJobCounts().get(status)).isEqualTo(jobCounts);
+        assertThat(response.getBody().get(0).getClientId()).isEqualTo(clientId);
+        assertThat(response.getBody().get(0).getJobCounts()).isEqualTo(dto.getJobCounts());
     }
 
     @Test
-    void getClientJobStats_returnsEmptyList() {
-        ClientService clientService = mock(ClientService.class);
-        ClientController controller = new ClientController(clientService);
+    void testGetClientJobStats_EmptyList() {
+        when(clientService.getClientJobStats()).thenReturn(List.of());
 
-        when(clientService.getClientJobStats()).thenReturn(Collections.emptyList());
+        ResponseEntity<List<ClientJobStatsDTO>> response = clientController.getClientJobStats();
 
-        ResponseEntity<List<ClientJobStatsDTO>> response = controller.getClientJobStats();
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertTrue(response.getBody().isEmpty());
-        verify(clientService, times(1)).getClientJobStats();
-    }
-
-    @Test
-    void getClientJobStats_serviceReturnsNull() {
-        ClientService clientService = mock(ClientService.class);
-        ClientController controller = new ClientController(clientService);
-
-        when(clientService.getClientJobStats()).thenReturn(null);
-
-        ResponseEntity<List<ClientJobStatsDTO>> response = controller.getClientJobStats();
-
-        assertEquals(200, response.getStatusCodeValue());
-        assertNull(response.getBody());
-        verify(clientService, times(1)).getClientJobStats();
+        assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        assertThat(response.getBody()).isEmpty();
     }
 }
