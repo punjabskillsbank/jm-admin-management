@@ -5,44 +5,41 @@ import com.jm_admin_management.dto.ClientJobProjectionDTO;
 import com.jm_admin_management.dto.ClientJobStatsDTO;
 import com.jm_admin_management.repository.ClientRepository;
 import com.jm_admin_management.service.ClientService;
-import com.jm_admin_management.config.ModelMapperConfig;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import lombok.RequiredArgsConstructor;
 
 import java.util.*;
+
 @Service
+@RequiredArgsConstructor // generates constructor for all final fields
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
     private final ModelMapper modelMapper;
 
-    public ClientServiceImpl(ClientRepository clientRepository, ModelMapper modelMapper) {
-        this.clientRepository = clientRepository;
-        this.modelMapper = modelMapper;
-    }
-
     @Override
     public List<ClientJobStatsDTO> getClientJobStats() {
-        List<ClientJobProjectionDTO> rows = clientRepository.findClientsWithJobStats();
-        Map<UUID, ClientJobStatsDTO> dtoMap = new HashMap<>();
+        List<ClientJobProjectionDTO> projections = clientRepository.findClientsWithJobStats();
+        Map<UUID, ClientJobStatsDTO> clientStatsMap = new HashMap<>();
 
-        for (ClientJobProjectionDTO row : rows) {
-            UUID clientId = row.getClientId();
+        for (ClientJobProjectionDTO projection : projections) {
+            UUID clientId = projection.getClientId();
 
-            ClientJobStatsDTO dto = dtoMap.computeIfAbsent(clientId, id -> {
-                ClientJobStatsDTO newDto = modelMapper.map(row, ClientJobStatsDTO.class);
+            ClientJobStatsDTO clientStats = clientStatsMap.computeIfAbsent(clientId, id -> {
+                ClientJobStatsDTO mappedStats = modelMapper.map(projection, ClientJobStatsDTO.class);
 
-                Map<JobPostingStatus, Long> counts = new EnumMap<>(JobPostingStatus.class);
-                for (JobPostingStatus s : JobPostingStatus.values()) {
-                    counts.put(s, 0L);
+                Map<JobPostingStatus, Long> jobCounts = new EnumMap<>(JobPostingStatus.class);
+                for (JobPostingStatus status : JobPostingStatus.values()) {
+                    jobCounts.put(status, 0L);
                 }
-                newDto.setJobCounts(counts);
-                return newDto;
+                mappedStats.setJobCounts(jobCounts);
+                return mappedStats;
             });
 
-            dto.getJobCounts().put(row.getStatus(), row.getCount());
+            clientStats.getJobCounts().put(projection.getStatus(), projection.getCount());
         }
 
-        return new ArrayList<>(dtoMap.values());
+        return new ArrayList<>(clientStatsMap.values());
     }
 }
