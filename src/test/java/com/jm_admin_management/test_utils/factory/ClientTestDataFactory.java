@@ -2,11 +2,12 @@ package com.jm_admin_management.test_utils.factory;
 
 import com.common.enums.JobPostingStatus;
 import com.jm_admin_management.dto.ClientJobProjectionDTO;
+import com.jm_admin_management.dto.ClientJobStatsDTO;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class ClientTestDataFactory {
+
 
     public static ClientJobProjectionDTO createClientJobProjection(
             UUID clientId,
@@ -18,13 +19,37 @@ public class ClientTestDataFactory {
     ) {
         return new ClientJobProjectionDTO(
                 clientId,
-                companyName,
-                industry,
                 profilePhotoURL,
+                industry,
+                companyName,
                 status,
                 count
         );
     }
+
+    public static ClientJobStatsDTO createClientJobStatsDTO(
+            UUID clientId,
+            String companyName,
+            String clientEmail,
+            String clientPhone,
+            Map<JobPostingStatus, Long> jobCounts
+    ) {
+        return new ClientJobStatsDTO(clientId, companyName, clientEmail, clientPhone, jobCounts);
+    }
+
+    public static ClientJobStatsDTO createSampleClientJobStatsDTO() {
+        UUID clientId = UUID.randomUUID();
+        Map<JobPostingStatus, Long> counts = new HashMap<>();
+        counts.put(JobPostingStatus.IN_PROGRESS, 5L);
+        return createClientJobStatsDTO(
+                clientId,
+                "Test Client",
+                "test@example.com",
+                "1234567890",
+                counts
+        );
+    }
+
 
     public static List<ClientJobProjectionDTO> createProjectionsForSingleClient(UUID clientId) {
         return List.of(
