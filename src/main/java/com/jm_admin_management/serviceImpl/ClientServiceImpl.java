@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor // generates constructor for all final fields
+@RequiredArgsConstructor
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
